@@ -2,7 +2,6 @@ import urllib.request as url
 import urllib.error as urlError
 import re
 
-
 class WifiConnectedDevices:
     """
     Gets the connected devices on the wifi network
