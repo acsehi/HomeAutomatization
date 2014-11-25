@@ -2,6 +2,7 @@ import urllib.request as url
 import urllib.error as urlError
 import re
 
+
 class WifiConnectedDevices:
     """
     Gets the connected devices on the wifi network
@@ -12,7 +13,7 @@ class WifiConnectedDevices:
         self._user = user
         self._password = password
 
-    def getDevices(self):
+    def get_devices(self):
         """
         Gets the devices on the network
         :return: Array of Device class
@@ -32,7 +33,8 @@ class WifiConnectedDevices:
         except urlError.HTTPError as e:
             return
 
-    def __parse(self, data):
+    @staticmethod
+    def  __parse(data):
         """
         Parses out the devices from html
         :param data: Html response from the wifi router

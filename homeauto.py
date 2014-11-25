@@ -52,6 +52,18 @@ class User:
     def __str__(self):
         return self._name
 
+    @staticmethod
+    def from_string(s):
+        """
+        Creates an User from a string
+        :param s: string (name:mac1,mac2...)
+        :return: User
+        """
+        l = s.split(':')
+        u = User(l[0],l[1].split(','))
+
+        return  u
+
     def has_mac(self, mac):
         """
         Returns true if the user has a device with the give MAC address
