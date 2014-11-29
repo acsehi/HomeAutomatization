@@ -30,11 +30,11 @@ class WifiConnectedDevices:
             f = url.urlopen(self._host)
             html = f.read().decode()
             return self.__parse(html)
-        except urlError.HTTPError as e:
+        except urlError.HTTPError:
             return
 
     @staticmethod
-    def  __parse(data):
+    def __parse(data):
         """
         Parses out the devices from html
         :param data: Html response from the wifi router

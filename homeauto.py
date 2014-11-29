@@ -1,5 +1,6 @@
 import wificonnecteddevices as wifi
 
+
 class Presence:
     def __init__(self, users):
         # encryption to be added
@@ -17,11 +18,11 @@ class Presence:
         :return:Array of User class
         """
         usersPresent = {}
-        devices = self._wifi.get_devices();
+        devices = self._wifi.get_devices()
 
         for user in self._users:
             for device in devices:
-                if (user.has_device(device)):
+                if user.has_device(device):
                     usersPresent[user] = user
 
         return usersPresent
@@ -35,7 +36,7 @@ class Presence:
         f = open('cred.txt')
         lines = f.readlines()
         f.close()
-        cred = [lines[0], lines[1]];
+        cred = [lines[0], lines[1]]
 
         return cred
 
@@ -60,9 +61,9 @@ class User:
         :return: User
         """
         l = s.split(':')
-        u = User(l[0],l[1].split(','))
+        u = User(l[0], l[1].split(','))
 
-        return  u
+        return u
 
     def has_mac(self, mac):
         """
