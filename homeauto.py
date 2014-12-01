@@ -15,13 +15,13 @@ class Presence:
         Gets the users present
         :return:Array of User class
         """
-        users_present = []
+        users_present = {}
         devices = self._wifi.get_devices()
 
         for user in self._users:
             for device in devices:
                 if user.has_device(device):
-                    users_present.append(user)
+                    users_present[user] = user
 
         return users_present
 
