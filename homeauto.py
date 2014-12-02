@@ -5,10 +5,8 @@ class Presence:
     def __init__(self, users):
         # encryption to be added
 
-        cred = self.__read_credential()
-        userName = cred[0].rstrip()
-        password = cred[1].rstrip()
-        self._wifi = wifi.WifiConnectedDevices('http://192.168.0.1/sky_attached_devices.html', userName, password)
+        user_name, password = self.__read_credential()
+        self._wifi = wifi.WifiConnectedDevices('http://192.168.0.1/sky_attached_devices.html', user_name, password)
 
         self._users = users
 
@@ -17,15 +15,15 @@ class Presence:
         Gets the users present
         :return:Array of User class
         """
-        usersPresent = {}
+        users_present = {}
         devices = self._wifi.get_devices()
 
         for user in self._users:
             for device in devices:
                 if user.has_device(device):
-                    usersPresent[user] = user
+                    users_present[user] = user
 
-        return usersPresent
+        return users_present
 
     @staticmethod
     def __read_credential():
@@ -33,12 +31,9 @@ class Presence:
         Reads the credentials
         No encryption for now
         """
-        f = open('cred.txt')
-        lines = f.readlines()
-        f.close()
-        cred = [lines[0], lines[1]]
-
-        return cred
+        with open('cred.txt') as f:
+            lines = f.readlines()
+        return lines[0].strip(), lines[1].strip()
 
 
 class User:
@@ -60,10 +55,8 @@ class User:
         :param s: string (name:mac1,mac2...)
         :return: User
         """
-        l = s.split(':')
-        u = User(l[0], l[1].split(','))
-
-        return u
+        name, macs = s.split(':')
+        return User(name, macs.split(','))
 
     def has_mac(self, mac):
         """
@@ -71,9 +64,8 @@ class User:
         :param mac: MAC address
         :return:bool
         """
-        for m in self._macs:
-            if m == mac:
-                return True
+        if mac in self._macs:
+            return True
         return False
 
     def has_device(self, device):

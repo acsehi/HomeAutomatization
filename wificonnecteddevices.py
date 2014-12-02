@@ -31,7 +31,7 @@ class WifiConnectedDevices:
             html = f.read().decode()
             return self.__parse(html)
         except urlError.HTTPError:
-            return
+            return []
 
     @staticmethod
     def __parse(data):
@@ -40,16 +40,14 @@ class WifiConnectedDevices:
         :param data: Html response from the wifi router
         :return:Array of Device class
         """
+        devices = []
         match = re.search('attach_dev = \\\'([^\']*)', data)
         if match:
             lines = match.group(1).split('<lf>')
-            devices = []
             for line in lines:
-                d = line.split('<br>')
-                device = Device(d[0], d[1], d[2])
-                devices.append(device)
-            return devices
-        return
+                ip, name, mac = line.split('<br>')
+                devices.append(Device(ip, name, mac))
+        return devices
 
 
 class Device:
@@ -63,4 +61,4 @@ class Device:
         self.mac = mac
 
     def __str__(self):
-        return str(self.ip + ' ' + self.name + ' ' + self.mac)
+        return "%s %s %s" % (self.ip, self.name, self.mac)
