@@ -1,7 +1,22 @@
 import homeauto as ha
+import logging
+import os
 import time
 
 if __name__ == '__main__':
+    logger = logging.getLogger(os.path.basename(__file__))
+    logger.setLevel(logging.DEBUG)
+    console_formatter = logging.Formatter("%(asctime)s: %(message)s")
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(console_formatter)
+    logger.addHandler(console_handler)
+    file_formatter = logging.Formatter("%(asctime)s [%(name)s] [%(levelname)-5.5s]: %(message)s")
+    file_handler = logging.FileHandler("presence.log")
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(file_formatter)
+    logger.addHandler(file_handler)
+
     users = []
     with open('users', 'r') as u:
         lines = u.readlines()
@@ -13,9 +28,5 @@ if __name__ == '__main__':
     while True:
         time.sleep(2)
         users_present = presence.get_presence()
-        with open('presence.log', 'a') as f:
-            for user in users_present:
-                ts = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
-                entry = '%s: %s\n' % (ts, user)
-                f.write(entry)
-                print(entry)
+        for user in users_present:
+            logger.info(user)
