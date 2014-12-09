@@ -8,10 +8,19 @@ class WifiConnectedDevices:
     Gets the connected devices on the wifi network
     """
 
-    def __init__(self, host, user, password):
+    def __init__(self, host):
+        self._user, self._password = WifiConnectedDevices.__read_credential()
         self._host = host
-        self._user = user
-        self._password = password
+
+    @staticmethod
+    def __read_credential():
+        """
+        Reads the credentials
+        No encryption for now
+        """
+        with open('cred.txt') as f:
+            lines = f.readlines()
+        return lines[0].strip(), lines[1].strip()
 
     def get_devices(self):
         """
@@ -63,4 +72,4 @@ class Device:
         self.mac = mac
 
     def __str__(self):
-        return str(self.ip + ' ' + self.name + ' ' + self.mac)
+        return "%s %s %s" % (self.ip, self.name, self.mac)

@@ -1,16 +1,49 @@
 import wificonnecteddevices as wifi
+from azure.storage import Entity
+
+def init_users_from_file():
+    users = []
+    with open('users.txt', 'r') as u:
+        lines = u.readlines()
+        for l in lines:
+            users.append(User.from_string(l))
+    return users
 
 
 class Presence:
-    def __init__(self, users):
-        # encryption to be added
-
-        cred = self.__read_credential()
-        userName = cred[0].rstrip()
-        password = cred[1].rstrip()
-        self._wifi = wifi.WifiConnectedDevices('http://192.168.0.1/sky_attached_devices.html', userName, password)
+    def __init__(self, users, wifi):
+        self._wifi = wifi
 
         self._users = users
+        self._lastUsers = []
+
+    def get_presence_change(self):
+        currentUsers = self.get_presence()
+        currentUserNames = []
+        pc = PresenceChange()
+        hasChange = False
+        for u in currentUsers:
+            currentUserNames.append(u._name)
+
+        for oldUser in self._lastUsers:
+            if oldUser not in currentUserNames:
+                print(oldUser + ' has left')
+                pc.users_left.append(oldUser)
+                hasChange = True
+
+        for currentUser in currentUserNames:
+            if currentUser not in self._lastUsers:
+                print(currentUser + ' has arrived')
+                pc.users_arrived.append(currentUser)
+                hasChange = True
+
+        self._lastUsers = currentUserNames
+        pc.active_users = currentUsers
+       
+        if hasChange:
+            return pc
+        else:
+            return None
 
     def get_presence(self):
         """
@@ -23,22 +56,19 @@ class Presence:
         for user in self._users:
             for device in devices:
                 if user.has_device(device):
-                    usersPresent[user] = user
+                    if usersPresent.get(user._name) == None:
+                        user.active_devices.append(device)
+                        usersPresent[user._name] = user
+                    else:
+                        usersPresent[user._name].active_devices.append(device)
+        return usersPresent.values()
 
-        return usersPresent
 
-    @staticmethod
-    def __read_credential():
-        """
-        Reads the credentials
-        No encryption for now
-        """
-        f = open('cred.txt')
-        lines = f.readlines()
-        f.close()
-        cred = [lines[0], lines[1]]
-
-        return cred
+class PresenceChange:
+    def __init__(self):
+        self.users_left = []
+        self.users_arrived = []
+        self.active_users = []
 
 
 class User:
@@ -49,6 +79,7 @@ class User:
     def __init__(self, name, macs):
         self._name = name
         self._macs = macs
+        self.active_devices = []
 
     def __str__(self):
         return self._name
@@ -60,10 +91,8 @@ class User:
         :param s: string (name:mac1,mac2...)
         :return: User
         """
-        l = s.split(':')
-        u = User(l[0], l[1].split(','))
-
-        return u
+        name, macs = s.split('\t')
+        return User(name, macs.split(','))
 
     def has_mac(self, mac):
         """
