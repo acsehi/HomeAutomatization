@@ -36,4 +36,3 @@ class AzureDataServices:
     def get_presence(self):
         tasks = self._table_service.query_entities('presence', "PartitionKey eq 'presence'")
         return tasks
-
