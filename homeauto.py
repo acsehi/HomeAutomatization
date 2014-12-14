@@ -1,6 +1,7 @@
 import wificonnecteddevices as wifi
 from azure.storage import Entity
 
+
 def init_users_from_file():
     users = []
     with open('users.txt', 'r') as u:
@@ -12,6 +13,11 @@ def init_users_from_file():
 
 class Presence:
     def __init__(self, users, wifi):
+        """
+        Creates a new Presence object
+        :param users: All users in the system
+        :param wifi: instance of an WifiConnectedDevices
+        """
         self._wifi = wifi
 
         self._users = users
@@ -91,7 +97,7 @@ class User:
         :param s: string (name:mac1,mac2...)
         :return: User
         """
-        name, macs = s.split('\t')
+        name, macs = s.split('#')
         return User(name, macs.split(','))
 
     def has_mac(self, mac):
