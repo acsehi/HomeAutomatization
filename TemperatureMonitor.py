@@ -15,10 +15,3 @@ class TemperatureMonitor:
         t = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
 
         return TemperatureObservation(0, t)
-
-if __name__ == '__main__':
-    data_service = azure.AzureDataServices('temperature')
-    data_service.create_table()
-    tm = TemperatureMonitor()
-    o = tm.get_observation()
-    data_service.insert_data(o)

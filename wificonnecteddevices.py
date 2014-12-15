@@ -1,13 +1,12 @@
-import urllib.request as url
-import urllib.error as urlError
+import urllib as url
 import re
-
+from requests.auth import HTTPBasicAuth
+import requests
 
 class WifiConnectedDevices:
     """
     Gets the connected devices on the wifi network
     """
-
     def __init__(self, host):
         self._user, self._password = WifiConnectedDevices.__read_credential()
         self._host = host
@@ -27,21 +26,13 @@ class WifiConnectedDevices:
         Gets the devices on the network
         :return: Array of Device class
         """
-        auth_handler = url.HTTPBasicAuthHandler()
-        auth_handler.add_password('Broadband Router',
-                                  uri=self._host,
-                                  user=self._user,
-                                  passwd=self._password)
-        opener = url.build_opener(auth_handler)
-        # ...and install it globally so it can be used with urlopen.
-        url.install_opener(opener)
         try:
-            f = url.urlopen(self._host)
-            html = f.read().decode()
+            r = requests.get(self._host, auth=HTTPBasicAuth(self._user, self._password))
+            html = r.text
             return self.__parse(html)
-        except urlError.HTTPError:
+        except Exception as a:
+            print a
             return
-
     @staticmethod
     def __parse(data):
         """
@@ -65,7 +56,6 @@ class Device:
     """
     Represent a wifi connected device
     """
-
     def __init__(self, ip, name, mac):
         self.name = name
         self.ip = ip
