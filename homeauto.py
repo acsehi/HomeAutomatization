@@ -48,8 +48,7 @@ class Presence:
        
         if hasChange:
             return pc
-        else:
-            return None
+        return None
 
     def get_presence(self):
         """
