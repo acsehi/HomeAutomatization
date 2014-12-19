@@ -26,7 +26,7 @@ def setup_log():
 
 def update_presence():
         change = presence.get_presence_change()
-        if change is not None:
+        if change:
             logger.info(change)
             presence_data_service.insert_presence(change)
 
