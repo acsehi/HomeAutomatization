@@ -32,7 +32,7 @@ def update_presence():
 
 
 def update_temperature():
-    o = tm.get_observation()
+    o = TemperatureMonitor.get_observation()
     temperature_data_service.insert_data(o)
 
 if __name__ == '__main__':
@@ -46,7 +46,6 @@ if __name__ == '__main__':
 
     temperature_data_service = azure.AzureDataServices('temperature')
     temperature_data_service.create_table()
-    tm = TemperatureMonitor()
     
     presence = ha.Presence(users, wifi)
     i = 0

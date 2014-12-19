@@ -1,17 +1,23 @@
 import time
 from azure.storage import Entity
-import AzureDataServices as azure
+import Adafruit_DHT
 
 class TemperatureObservation(Entity):
-    def __init__(self, temp, datetime):
+    def __init__(self, temp, humidity, datetime):
         self.temp = temp
         self.datetime = datetime
+        self.humidity = humidity
 
 
 class TemperatureMonitor:
+    sensor = Adafruit_DHT.DHT22
+    pin = 6
 
+    @staticmethod
     def get_observation(self):
-        #rpi logic here
+        humidity, temperature = Adafruit_DHT.read_retry(self.sensor, self.pin)
+
+        print 'Temp={0:0.1f}*C  Humidity={1:0.1f}%'.format(temperature, humidity)
         t = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
 
-        return TemperatureObservation(0, t)
+        return TemperatureObservation(temperature,humidity,t)
