@@ -19,15 +19,34 @@ class AzureDataServices:
         """
         self._table_service.create_table(self._partition)
 
+    def insert_data(self, task, rowkey):
+        """
+        Insert the object to azure
+        """
+        task.PartitionKey = self._partition
+
+        if  rowkey: 
+            t = rowkey
+        else:
+            t = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
+            
+        task.RowKey = t
+        self._table_service.insert_entity(self._partition, task)
+
+    def update_data(self, task, rowkey):
+        """
+        Insert the object to azure
+        """
+        task.PartitionKey = self._partition
+            
+        task.RowKey = rowkey
+        self._table_service.update_entity(self._partition, self._partition,rowkey, task)
+
     def insert_data(self, task):
         """
         Insert the object to azure
         """
-        t = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
-        task.PartitionKey = self._partition
-        task.RowKey = t
-
-        self._table_service.insert_entity(self._partition, task)
+        self.insert_data(self, task, None)
 
     def insert_presence(self, p):
         """

@@ -5,7 +5,9 @@ import wificonnecteddevices
 import AzureDataServices as azure
 import logging
 import os
+from IPAddress import IPAddress
 
+actualIP = ''
 
 def setup_log():
     logger = logging.getLogger(os.path.basename(__file__))
@@ -23,18 +25,24 @@ def setup_log():
 
     return logger
 
-
 def update_presence():
         change = presence.get_presence_change()
         if change:
             logger.info(change)
             presence_data_service.insert_presence(change)
 
-
 def update_temperature():
     o = TemperatureMonitor.get_observation()
     temperature_data_service.insert_data(o)
 
+def update_ip():
+    ip = IPAddress.get_ip()
+
+    if ip != '' and actualIP != ip:
+        actualIP = ip
+        ip_data_service.insert_data(ip)
+        ip_data_service.insert_data(ip, 'latest')
+    
 if __name__ == '__main__':
     logger = setup_log()
     
@@ -46,12 +54,16 @@ if __name__ == '__main__':
 
     temperature_data_service = azure.AzureDataServices('temperature')
     temperature_data_service.create_table()
+
+    ip_data_service = azure.AzureDataServices('ip')
+    ip_data_service.create_table()
     
     presence = ha.Presence(users, wifi)
     i = 0
     while True:
         if i % 60 == 0:
             update_temperature()
+            update_ip()
         if i % 6 == 0:
             update_presence()
         i += 1
