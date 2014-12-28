@@ -24,7 +24,11 @@ class Presence:
         self._lastUsers = []
 
     def get_presence_change(self):
-        currentUsers = self.get_presence()
+        try:
+            currentUsers = self.get_presence()
+        except StandardError:
+            return None
+
         currentUserNames = []
         pc = PresenceChange()
         hasChange = False
@@ -33,13 +37,11 @@ class Presence:
 
         for oldUser in self._lastUsers:
             if oldUser not in currentUserNames:
-                print(oldUser + ' has left')
                 pc.users_left.append(oldUser)
                 hasChange = True
 
         for currentUser in currentUserNames:
             if currentUser not in self._lastUsers:
-                print(currentUser + ' has arrived')
                 pc.users_arrived.append(currentUser)
                 hasChange = True
 
@@ -58,10 +60,13 @@ class Presence:
         usersPresent = {}
         devices = self._wifi.get_devices()
 
+        if devices is None:
+            raise StandardError('Cannot get devices')
+
         for user in self._users:
             for device in devices:
                 if user.has_device(device):
-                    if usersPresent.get(user._name) == None:
+                    if usersPresent.get(user._name) is None:
                         user.active_devices.append(device)
                         usersPresent[user._name] = user
                     else:

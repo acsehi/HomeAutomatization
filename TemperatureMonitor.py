@@ -15,9 +15,13 @@ class TemperatureMonitor:
     def get_observation():
         sensor = Adafruit_DHT.DHT11
         pin = 4
-        humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
+        t = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
+        try:
+            humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
+        except RuntimeError:
+            # Code not running on PI
+            return TemperatureObservation(0, 0, t)
 
         print temperature, humidity
-        t = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
 
         return TemperatureObservation(temperature,humidity,t)

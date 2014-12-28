@@ -1,21 +1,28 @@
 import urllib2
 import json
-import sys
+from azure.storage import Entity
 
-class IPAddress:
+class IPAddressService:
+    """
+    Gets the external IP address
+    """
 
+    def __init__(self):
+        self.actualIP = ''
 
-    @staticmethod
-    def get_ip():
+    def __set_ip(self, ip):
+        self.actualIP = ip
+        return  ip
+
+    def get_ip(self):
         """Gets the actual IP of the public network"""
         try:
             my_ip = urllib2.urlopen('http://ip.42.pl/raw').read()
-            return my_ip
+            return self.__set_ip(my_ip)
         except:
-            return IPAddress.__get_ip2()
+            return self.__set_ip(IPAddress.__get_ip2())
 
-    @staticmethod
-    def __get_ip2():
+    def __get_ip2(self):
         """Gets the actual IP of the public network - backup service"""
         try:
             response = urllib2.urlopen('http://httpbin.org/ip')
@@ -23,3 +30,11 @@ class IPAddress:
             return ip
         except:
             return ''
+
+
+class IPAddress(Entity):
+    """
+    Stores an ip address
+    """
+    def __init__(self, ip):
+        self.ip = ip

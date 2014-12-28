@@ -1,13 +1,12 @@
 from TemperatureMonitor import TemperatureMonitor
-import homeauto as ha
+import presence as ha
 import time
 import wificonnecteddevices
 import AzureDataServices as azure
 import logging
 import os
-from IPAddress import IPAddress
+import IPAddress as ip
 
-actualIP = ''
 
 def setup_log():
     logger = logging.getLogger(os.path.basename(__file__))
@@ -25,27 +24,34 @@ def setup_log():
 
     return logger
 
+
 def update_presence():
         change = presence.get_presence_change()
         if change:
             logger.info(change)
             presence_data_service.insert_presence(change)
+            print 'Presence updated'
+
 
 def update_temperature():
     o = TemperatureMonitor.get_observation()
     temperature_data_service.insert_data(o)
+    print 'Temperature updated'
+
 
 def update_ip():
-    ip = IPAddress.get_ip()
+    old_ip = ip_address_service.actualIP
+    new_ip = ip_address_service.get_ip()
 
-    if ip != '' and actualIP != ip:
-        actualIP = ip
-        ip_data_service.insert_data(ip)
-        ip_data_service.insert_data(ip, 'latest')
+    if new_ip != '' and old_ip != new_ip:
+        ip_data_service.insert_data(ip.IPAddress(new_ip))
+        ip_data_service.update_or_insert(ip.IPAddress(new_ip), 'latest')
+        print 'IP updated'
     
 if __name__ == '__main__':
+    print 'Started'
     logger = setup_log()
-    
+
     users = ha.init_users_from_file()
     wifi = wificonnecteddevices.WifiConnectedDevices('http://192.168.0.1/sky_attached_devices.html')
     
@@ -55,7 +61,8 @@ if __name__ == '__main__':
     temperature_data_service = azure.AzureDataServices('temperature')
     temperature_data_service.create_table()
 
-    ip_data_service = azure.AzureDataServices('ip')
+    ip_address_service = ip.IPAddressService()
+    ip_data_service = azure.AzureDataServices('address')
     ip_data_service.create_table()
     
     presence = ha.Presence(users, wifi)
