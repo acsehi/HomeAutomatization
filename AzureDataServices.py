@@ -9,10 +9,10 @@ class AzureDataServices:
 
     def __init__(self, table):
 
-        if os.environ.get('raspberry') is None:
-            # Test table for dev environments
+        if os.environ.get("raspberry") is None:
             table += 'Test'
 
+        print table
         self._partition = table
         with open('azure.txt') as f:
             lines = f.readlines()

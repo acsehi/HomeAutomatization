@@ -11,13 +11,18 @@ class TemperatureObservation(Entity):
 
 class TemperatureMonitor:
 
-    @staticmethod
-    def get_observation():
+    def __init__(self):
+        self.actual_temp = -1
+        self.actual_humidity = -1
+
+    def get_observation(self):
         sensor = Adafruit_DHT.DHT11
         pin = 4
         t = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
         try:
             humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
+            self.actual_temp = temperature
+            self.actual_humidity = humidity
         except RuntimeError:
             # Code not running on PI
             return TemperatureObservation(0, 0, t)

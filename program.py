@@ -34,9 +34,12 @@ def update_presence():
 
 
 def update_temperature():
-    o = TemperatureMonitor.get_observation()
-    temperature_data_service.insert_data(o)
-    print 'Temperature updated'
+    oldTemp = temperature_service.actual_temp
+    oldHum = temperature_service.actual_humidity
+    o = temperature_service.get_observation()
+    if oldTemp != o.temp and oldHum != o.humidity:
+        temperature_data_service.insert_data(o)
+        print 'Temperature updated'
 
 
 def update_ip():
@@ -50,6 +53,8 @@ def update_ip():
     
 if __name__ == '__main__':
     print 'Started'
+    if os.environ.get("raspberry") is None:
+        print 'raspberry system environment not detected'
     logger = setup_log()
 
     users = ha.init_users_from_file()
@@ -58,6 +63,7 @@ if __name__ == '__main__':
     presence_data_service = azure.AzureDataServices('presence')
     presence_data_service.create_table()
 
+    temperature_service = TemperatureMonitor()
     temperature_data_service = azure.AzureDataServices('temperature')
     temperature_data_service.create_table()
 
